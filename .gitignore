@@ -1,0 +1,46 @@
+# --- 敏感信息 ---
+# API 密钥 / 令牌 / 密码
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+*.p8
+secrets*.json
+credentials*.json
+token*
+*.token
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# --- Node ---
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- 编辑器 / 系统 ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# --- WorkBuddy / 杂项 ---
+.workbuddy/memory/
+*.bak
