@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent（智能体）· 学习资料</title>
+<style>
+  :root{--accent:#2563eb;--accent-light:#eff6ff;--border:#e5e7eb;--text:#1f2937;--muted:#6b7280;--bg:#ffffff;--warn-bg:#fef2f2;--warn:#b91c1c;--ok:#059669;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:var(--bg);line-height:1.8;font-size:16px;}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 24px 64px;}
+  header.hero{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:16px;padding:40px 36px;margin-bottom:32px;}
+  header.hero .tag{display:inline-block;background:rgba(255,255,255,.18);border-radius:999px;padding:2px 14px;font-size:13px;letter-spacing:1px;margin-bottom:14px;}
+  header.hero h1{font-size:34px;margin-bottom:10px;}
+  header.hero p{font-size:17px;opacity:.92;}
+  h2{font-size:22px;color:var(--accent);margin:44px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--accent-light);display:flex;align-items:center;gap:10px;}
+  h2 .num{background:var(--accent);color:#fff;border-radius:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex:none;}
+  h3{font-size:17px;margin:20px 0 8px;}
+  p{margin:10px 0;}
+  ul,ol{margin:10px 0 10px 24px;}
+  li{margin:6px 0;}
+  .card{background:var(--accent-light);border-radius:12px;padding:18px 22px;margin:14px 0;}
+  .card.warn{background:var(--warn-bg);}
+  .mynote{background:#fffbeb;border:1.5px dashed #f59e0b;border-radius:12px;padding:18px 22px;margin:28px 0;}
+  .mynote h3{margin:0 0 8px;color:#b45309;}
+  .card h3{margin-top:0;}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px;}
+  th{background:#f8fafc;text-align:left;}
+  th,td{border:1px solid var(--border);padding:10px 12px;vertical-align:top;}
+  details{border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin:12px 0;background:#fafafa;}
+  summary{cursor:pointer;font-weight:600;color:var(--accent);}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0;font-size:14px;}
+  .flow .step{background:var(--accent-light);border:1px solid #bfdbfe;border-radius:8px;padding:6px 12px;font-weight:600;}
+  .flow .arrow{color:var(--muted);}
+  .loopback{color:var(--warn);font-size:13px;margin-top:6px;}
+  .refs li{color:var(--muted);font-size:14.5px;}
+  .answer strong{color:var(--ok);}
+  footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--border);padding-top:16px;}
+  code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <span class="tag">概念学习资料 · AI 技术</span>
+  <h1>Agent（智能体）</h1>
+  <p>一句话定义：能围绕目标自主规划、调用工具并根据反馈循环迭代，直到完成任务的 AI 程序。</p>
+</header>
+
+<h2><span class="num">1</span>学习目标（Learning Objectives）</h2>
+<p>学完本资料后，你应该能够：</p>
+<ol>
+  <li><strong>说明</strong> Agent 与普通 LLM 对话（Chatbot）的本质区别；</li>
+  <li><strong>拆解</strong> Agent 的四个核心组成部分：大模型（大脑）、规划、记忆、工具；</li>
+  <li><strong>解释</strong> "感知—思考—行动"循环（含 ReAct 模式）如何赋予 Agent 自主性；</li>
+  <li><strong>分析</strong> 一个具体任务是否值得用 Agent 来做（成本、可靠性、可控性权衡）；</li>
+  <li><strong>评价</strong> 一个 Agent 设计的优劣，指出常见的失效模式。</li>
+</ol>
+
+<h2><span class="num">2</span>核心问题（Essential Questions）</h2>
+<div class="card">
+<ol>
+  <li>ChatGPT 已经能"什么都知道"，为什么还需要 Agent？它到底多做了什么？</li>
+  <li>Agent 的"自主性"从哪里来——是模型变聪明了，还是程序结构变了？</li>
+  <li>如果 LLM 每一步都可能出错，Agent 凭什么能完成复杂任务？</li>
+  <li>什么情况下<strong>不该</strong>用 Agent？</li>
+</ol>
+</div>
+
+<h2><span class="num">3</span>结构化解释（Structured Explanation）</h2>
+
+<h3>一句话定义</h3>
+<p>Agent 是以大模型为"大脑"，能<strong>自主规划步骤、调用外部工具、根据环境反馈循环调整</strong>，最终完成给定目标的 AI 程序。</p>
+
+<h3>拆解要点：四个组成部分</h3>
+<table>
+  <tr><th>组成部分</th><th>作用</th><th>通俗理解</th></tr>
+  <tr><td><strong>大模型（LLM）</strong></td><td>理解目标、推理决策、生成每一步的行动指令</td><td>大脑：会思考、会下判断</td></tr>
+  <tr><td><strong>规划（Planning）</strong></td><td>把大目标拆成子任务，决定先做什么后做什么</td><td>做事的章法：先列清单再动手</td></tr>
+  <tr><td><strong>记忆（Memory）</strong></td><td>短期：对话/操作历史；长期：外部存储的笔记、向量库</td><td>工作台 + 笔记本</td></tr>
+  <tr><td><strong>工具（Tools）</strong></td><td>搜索、读写文件、执行代码、调用 API 等与真实世界交互的能力</td><td>手和脚：光想不做没结果</td></tr>
+</table>
+
+<h3>运作机制：感知—思考—行动循环</h3>
+<div class="flow">
+  <span class="step">接收目标/观察环境</span><span class="arrow">→</span>
+  <span class="step">LLM 思考（Thought）</span><span class="arrow">→</span>
+  <span class="step">决定行动（Action）</span><span class="arrow">→</span>
+  <span class="step">执行工具，获得结果（Observation）</span><span class="arrow">→</span>
+  <span class="step">回到思考……</span>
+</div>
+<p class="loopback">↺ 循环进行，直到 LLM 判断"目标已完成"或触发终止条件。这个"边想边做边看结果"的模式即 <strong>ReAct</strong>（Reason + Act，Yao 等人 2022 年提出）。</p>
+<p>这正是核心问题 2 和 3 的答案：<strong>自主性来自循环结构而非模型本身</strong>——即使每一步决策只有 90% 正确率，Agent 可以通过观察结果发现错误、自我修正（比如命令报错后换个思路重试）；而单轮对话没有"观察—修正"的机会，错了就是错了。</p>
+
+<h3>来龙去脉</h3>
+<p>"Agent"概念源于经典人工智能（指能在环境中自主行动以达成目标的系统，如游戏 AI、机器人）；2022 年 ReAct 论文证明 LLM 可以担任决策核心，2023 年 AutoGPT 等开源项目引爆"自主 Agent"热潮，此后演进出编程 Agent、客服 Agent、办公 Agent 等落地形态。它要解决的根本矛盾是：<strong>LLM 很聪明但只能"动嘴"，真实工作需要"动手"。</strong></p>
+
+<h3>必要前置知识</h3>
+<ul>
+  <li><strong>大语言模型（LLM）</strong>：基于海量文本训练、按概率生成文字的模型，是 Agent 的大脑。</li>
+  <li><strong>Prompt（提示词）</strong>：写给 LLM 的指令文本，Agent 的每一步"思考"本质上都是一次 Prompt 调用。</li>
+  <li><strong>API / 函数调用（Function Calling）</strong>：让程序之间互相调用能力的方式，是 Agent"使用工具"的技术基础。</li>
+</ul>
+
+<div class="mynote">
+<h3>💡 我的理解</h3>
+<p>我觉得 Agent 就像一个能自己规划步骤的智能助手。它不是简单地回答问题，而是能把一个复杂任务拆解成多个小步骤，一步步去执行。比如我想让它帮我整理一份报告，它会自己决定先去查资料，再提取重点，最后生成总结。</p>
+</div>
+
+<h2><span class="num">4</span>应用案例（Application Cases）</h2>
+
+<h3>生活类比：顾问 vs 全职员工</h3>
+<p>普通 Chatbot 像<strong>电话顾问</strong>——你问一句他答一句，从不替你动手；Agent 像<strong>新入职的全职员工</strong>——你给一个目标（"把这周的报销整理好交上去"），他自己拆任务、找票据、填表格，遇到缺材料会来问你，办完给你汇报结果。</p>
+
+<h3>真实案例：编程 Agent 修 Bug</h3>
+<p>开发者给编程 Agent 一个目标："修复登录页在手机上按钮错位的 Bug"。Agent 的实际执行过程：① 读取项目代码，定位登录页组件（工具：读文件）；② 分析样式代码，发现固定宽度写死（LLM 思考）；③ 修改 CSS 并运行测试（工具：改文件、执行命令）；④ 测试失败，观察到新的报错信息，调整方案再试（循环）；⑤ 测试通过，输出改动摘要。整个过程开发者只说了一句话。</p>
+
+<h3>反例/边界案例：不该用 Agent 的场景</h3>
+<p>"帮我翻译这句话"——任务单步可完成、结果可一次性验证，直接一次 LLM 调用即可。硬套 Agent 会带来三重代价：<strong>更慢</strong>（多轮循环）、<strong>更贵</strong>（多次调用）、<strong>更不可控</strong>（自主规划可能在错误方向上走很远）。工程界的共识是：<strong>能一步做完的不要用 Agent，能写死流程的用工作流（Workflow），只有路径不确定、需要随机应变的任务才交给 Agent。</strong></p>
+
+<h2><span class="num">5</span>概念辨析（Concept Discrimination）</h2>
+
+<h3>易混淆概念对照表</h3>
+<table>
+  <tr><th>概念</th><th>侧重点</th><th>典型场景</th><th>一句话区别</th></tr>
+  <tr><td><strong>Agent（智能体）</strong></td><td>自主决策 + 循环 + 工具</td><td>目标不确定的多步骤任务</td><td>路径由 AI 自己决定，边做边调整</td></tr>
+  <tr><td><strong>Chatbot（对话助手）</strong></td><td>一问一答</td><td>问答、写作、翻译</td><td>只输出文字，不执行动作、不闭环</td></tr>
+  <tr><td><strong>Workflow（工作流）</strong></td><td>人预先编排的固定流程</td><td>审批流、ETL 管道</td><td>步骤写死在人手里，AI 只填充某几步</td></tr>
+  <tr><td><strong>LLM（大模型）</strong></td><td>文本生成引擎</td><td>被上述一切系统调用</td><td>是"大脑"零件，Agent 是装了大脑的"整个人"</td></tr>
+</table>
+
+<h3>常见误解</h3>
+<div class="card warn">
+  <h3>误解 ① "Agent 就是写得更好的 Prompt"</h3>
+  <p>❌ Prompt 只是 Agent 系统的一小部分。Agent 的本质是<strong>程序结构</strong>：循环、工具接口、状态管理、错误恢复。同样的模型，套上不同的 Agent 框架，任务完成率差异巨大。</p>
+  <h3>误解 ② "Agent 比普通对话更聪明、更准确"</h3>
+  <p>❌ 底层模型相同，单步准确率不变。Agent 的高完成率来自<strong>试错与自我修正的机会</strong>，但同时每一步都可能引入新错误，整体可靠性需要精心设计（限制步数、关键操作要求确认等）。</p>
+  <h3>误解 ③ "Agent 一定能记住所有事"</h3>
+  <p>❌ Agent 的"记忆"分短期（上下文窗口，容量有限）和长期（外部存储，需要主动写入）。没有配置长期记忆的 Agent，换一个会话就"失忆"。</p>
+</div>
+
+<h2><span class="num">6</span>自测题（Self-Test）</h2>
+
+<h3>概念辨析题</h3>
+<ol>
+  <li>（判断）一个网页聊天机器人能回答所有知识问题，它就是 Agent。</li>
+  <li>（单选）Agent 自主性的根本来源是：<br>A. 使用了参数量更大的模型　B. "思考—行动—观察"的循环结构　C. Prompt 写得更长　D. 记忆容量更大</li>
+  <li>（单选）以下哪个任务<strong>最适合</strong>用 Agent？<br>A. 把一段中文翻译成英文　B. 按固定模板生成周报　C. 调研一个陌生行业并整理成报告（需要搜索、阅读、归纳多个来源）　D. 给一张图片换个背景色</li>
+  <li>（判断）Agent 执行过程中某一步调用的命令报错了，这通常意味着整个任务失败，需要人工从头开始。</li>
+  <li>（多选）下列哪些属于 Agent 的核心组成？<br>A. 规划　B. 工具　C. 更大的字体　D. 记忆</li>
+</ol>
+
+<h3>应用题</h3>
+<ol start="6">
+  <li>你的团队想用 AI 处理"每天把客服邮件分类：退款类转售后、咨询类自动回复、投诉类升级人工"。请分析：这个任务应该用工作流还是 Agent？判断依据是什么？如果邮件里出现完全没见过的新类型会怎样？</li>
+</ol>
+
+<details class="answer">
+<summary>点击查看答案与解析</summary>
+<ol>
+  <li><strong>错。</strong>能回答问题只说明它是 Chatbot。判断关键是有没有<strong>自主行动与循环</strong>——它既不调用工具，也不根据执行结果调整行为。<em>错的人通常把"聪明"当成了"自主"。</em></li>
+  <li><strong>B。</strong>模型、Prompt、记忆都只是零件；没有"观察结果→修正下一步"的循环，就没有自主性。<em>错选 A 的人混淆了"智力"和"能动性"。</em></li>
+  <li><strong>C。</strong>调研任务的路径无法预先写死（搜什么、读几篇、怎么归纳都取决于中间结果），正是 Agent 的用武之地。A、D 一步可完成；B 流程固定，用工作流更稳更省。<em>错选 B 的人低估了固定流程的确定性优势。</em></li>
+  <li><strong>错。</strong>报错信息正是"观察"环节的输入，设计良好的 Agent 会读取报错、分析原因、换方案重试——这正是它优于单轮对话的地方。<em>错的人没理解循环结构的意义。</em></li>
+  <li><strong>A、B、D。</strong>规划、工具、记忆加上大脑（LLM）构成四大件；"更大的字体"与 Agent 无关。</li>
+  <li><strong>参考分析：</strong>邮件<strong>分类 + 固定路由</strong>本身规则明确，用工作流（固定判断 → 分发）更快、更可控、成本更低；但"自动回复咨询类邮件"如果需要理解上下文、查订单、组织语气，可以在工作流的这一环嵌入 LLM 调用。若出现全新类型：工作流会把它漏掉或误分类（需要预设"兜底转人工"规则）；若整段设计成 Agent，它可能自己识别出"这像是新类型"并主动上报——这是 Agent 的优势，但代价是不确定的行为路径和更高的单件成本。结论：<strong>主干用工作流保稳定，局部用 Agent（或 LLM 调用）应对开放性</strong>——这也是目前业界的主流架构。</li>
+</ol>
+</details>
+
+<h2><span class="num">7</span>参考来源（References）</h2>
+<ul class="refs">
+  <li>Yao, S. et al. <em>ReAct: Synergizing Reasoning and Acting in Language Models</em>（ReAct 论文，ICLR 2023，arXiv:2210.03629）—— 提出"思考+行动"循环模式的原始论文。</li>
+  <li>Weng, Lilian. <em>LLM Powered Autonomous Agents</em>（lilianweng.github.io，2023）—— 被广泛引用的 Agent 综述博客，系统讲解规划/记忆/工具三大件。</li>
+  <li>Anthropic, <em>Building Effective Agents</em>（anthropic.com，2024）—— 官方工程实践：何时用工作流、何时用 Agent。</li>
+</ul>
+
+<footer>概念学习资料生成器 · 生成于 2026-09-06 · 概念：Agent（智能体）</footer>
+</div>
+</body>
+</html>

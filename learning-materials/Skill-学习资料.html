@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill（技能）· 学习资料</title>
+<style>
+  :root{--accent:#0d9488;--accent-light:#f0fdfa;--border:#e5e7eb;--text:#1f2937;--muted:#6b7280;--bg:#ffffff;--warn-bg:#fef2f2;--warn:#b91c1c;--ok:#059669;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:var(--bg);line-height:1.8;font-size:16px;}
+  .wrap{max-width:860px;margin:0 auto;padding:32px 24px 64px;}
+  header.hero{background:linear-gradient(135deg,#134e4a,#0d9488);color:#fff;border-radius:16px;padding:40px 36px;margin-bottom:32px;}
+  header.hero .tag{display:inline-block;background:rgba(255,255,255,.18);border-radius:999px;padding:2px 14px;font-size:13px;letter-spacing:1px;margin-bottom:14px;}
+  header.hero h1{font-size:34px;margin-bottom:10px;}
+  header.hero p{font-size:17px;opacity:.92;}
+  h2{font-size:22px;color:var(--accent);margin:44px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--accent-light);display:flex;align-items:center;gap:10px;}
+  h2 .num{background:var(--accent);color:#fff;border-radius:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex:none;}
+  h3{font-size:17px;margin:20px 0 8px;}
+  p{margin:10px 0;}
+  ul,ol{margin:10px 0 10px 24px;}
+  li{margin:6px 0;}
+  .card{background:var(--accent-light);border-radius:12px;padding:18px 22px;margin:14px 0;}
+  .card.warn{background:var(--warn-bg);}
+  .mynote{background:#fffbeb;border:1.5px dashed #f59e0b;border-radius:12px;padding:18px 22px;margin:28px 0;}
+  .mynote h3{margin:0 0 8px;color:#b45309;}
+  .card h3{margin-top:0;}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px;}
+  th{background:#f8fafc;text-align:left;}
+  th,td{border:1px solid var(--border);padding:10px 12px;vertical-align:top;}
+  details{border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin:12px 0;background:#fafafa;}
+  summary{cursor:pointer;font-weight:600;color:var(--accent);}
+  .refs li{color:var(--muted);font-size:14.5px;}
+  .answer strong{color:var(--ok);}
+  footer{margin-top:48px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--border);padding-top:16px;}
+  code{background:#f1f5f9;border-radius:4px;padding:1px 6px;font-size:14px;}
+  pre{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px 18px;overflow-x:auto;font-size:13.5px;line-height:1.6;margin:12px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <span class="tag">概念学习资料 · AI 技术</span>
+  <h1>Skill（技能）</h1>
+  <p>一句话定义：打包好的指令 + 领域知识 + 工作流，让 AI 在特定场景下自动按专家流程执行。</p>
+</header>
+
+<h2><span class="num">1</span>学习目标（Learning Objectives）</h2>
+<p>学完本资料后，你应该能够：</p>
+<ol>
+  <li><strong>说明</strong> Skill 是什么、由哪几部分构成（元数据、触发条件、工作流程、输出模板、质量准则）；</li>
+  <li><strong>区分</strong> Skill 与 Prompt 模板、记忆（Memory）、MCP 连接器、Agent 的边界；</li>
+  <li><strong>设计</strong> 一个结构合格、可被 AI 正确触发和执行的 SKILL.md；</li>
+  <li><strong>判断</strong> 一段重复出现的经验应该沉淀为 Skill、写入记忆，还是做成工具连接；</li>
+  <li><strong>评价</strong> 一个 Skill 的质量，并指出过度膨胀的 Skill 带来的上下文代价。</li>
+</ol>
+
+<h2><span class="num">2</span>核心问题（Essential Questions）</h2>
+<div class="card">
+<ol>
+  <li>明明每次都能用 Prompt 临时说清楚，为什么还要做成 Skill？它解决了什么重复成本？</li>
+  <li>Skill 是怎么"改变"模型行为的——模型学到新知识了吗？</li>
+  <li>Skill 和插件、MCP 工具、记忆系统的分工边界在哪里？</li>
+  <li>Skill 是越多越好吗？装 100 个 Skill 会发生什么？</li>
+</ol>
+</div>
+
+<h2><span class="num">3</span>结构化解释（Structured Explanation）</h2>
+
+<h3>一句话定义</h3>
+<p>Skill 是一个<strong>随取随用的指令包</strong>：把某类任务的专家流程、领域知识和输出规范写成一个文件，AI 在匹配的场景下加载它，按流程执行。</p>
+
+<h3>拆解要点：一个 Skill 的五个组成部分</h3>
+<table>
+  <tr><th>组成部分</th><th>作用</th><th>示例（以"概念学习资料生成器"为例）</th></tr>
+  <tr><td><strong>元数据</strong></td><td>YAML 头部的 name / description，供 AI 判断何时触发</td><td>name: 概念学习资料生成器；description: 七模块学习资料包</td></tr>
+  <tr><td><strong>触发条件</strong></td><td>列出什么样的用户请求应该启用本 Skill</td><td>"帮我学习 X""整理 X 的学习笔记"</td></tr>
+  <tr><td><strong>工作流程</strong></td><td>分步操作指引，把"怎么做"固化下来</td><td>识别概念 → 判断类型 → 按模板生成 → 自查交付</td></tr>
+  <tr><td><strong>输出模板</strong></td><td>规定产物的固定结构，保证每次结果一致</td><td>七模块：学习目标/核心问题/解释/案例/辨析/自测/来源</td></tr>
+  <tr><td><strong>质量准则</strong></td><td>约束红线与迭代方式（禁止事项、格式要求）</td><td>无幻觉、闭环校验、不确定标注"待核实"</td></tr>
+</table>
+
+<h3>运作机制</h3>
+<p>关键在于理解 Skill 与上下文的关系：<strong>Skill 平时不占用对话，只在匹配场景被加载进上下文</strong>。流程是：① 用户发来请求；② AI（或平台）根据各 Skill 的 description 判断是否匹配；③ 匹配则把 SKILL.md 的内容注入本次上下文；④ 模型严格按其中的流程与模板执行。所以核心问题 2 的答案是：<strong>模型没有"学到"任何新东西——Skill 只是在恰当时机往上下文里放了一份高质量的操作手册</strong>，这正是它比"每次手打长 Prompt"省力的原因（一次编写、处处复用、版本可控）。</p>
+
+<h3>来龙去脉</h3>
+<p>Skill 是提示工程（Prompt Engineering）自然演进的结果：人们发现高质量的指令决定产出质量，而好指令不应每次重写，于是把"验证过的最佳提示 + 领域知识 + 流程"沉淀为可复用文件——Claude 推出 Agent Skills 机制、WorkBuddy 等产品内置用户级/项目级 Skill 目录，本质都是同一思想：<strong>把"专家经验"从聊天记录里抽出来，变成可管理、可分享的资产。</strong></p>
+
+<h3>必要前置知识</h3>
+<ul>
+  <li><strong>Prompt（提示词）</strong>：写给模型的指令文本；Skill 是"提示词的打包升级版"。</li>
+  <li><strong>上下文（Context）</strong>：Skill 被加载后进入的那块"工作台"，理解加载机制的前提。</li>
+  <li><strong>Markdown / YAML</strong>：Skill 文件的载体格式——正文用 Markdown，头部元数据用 YAML。</li>
+</ul>
+
+<div class="mynote">
+<h3>💡 我的理解</h3>
+<p>Skill 就像是给 AI 提前写好的"操作手册"，让它在遇到特定任务时可以直接按流程走，不用每次都重新想怎么做。这样既提高了效率，也保证了输出质量的一致性。</p>
+</div>
+
+<h2><span class="num">4</span>应用案例（Application Cases）</h2>
+
+<h3>生活类比：给新同事的 SOP 手册</h3>
+<p>团队里能力最强的人把"报销怎么贴票、周报怎么写、客户投诉怎么升级"写成 SOP 手册，放进新人抽屉。新人平时不用背，遇到对应场景翻开照做即可。<strong>Skill 就是 AI 的抽屉手册</strong>：写一次，之后每个新会话都自动"继承"了这套经验。</p>
+
+<h3>真实案例：本仓库的"概念学习资料生成器"</h3>
+<p>本仓库 <code>.workbuddy/skills/概念学习资料生成器/SKILL.md</code> 就是一个活例子：作者发现"给我讲解 X 概念"这类请求高度重复，且好资料有固定结构（七模块），于是把流程、模板、质量红线写进一个 Skill。此后任何人说"帮我学习 X"，AI 都会产出结构一致、质量稳定的资料——刚才生成本页所用的模板，正是它。</p>
+
+<h3>反例/边界案例：一句话偏好不适合做成 Skill</h3>
+<p>"以后回答我都用简体中文""我叫张三"——这类信息做成 Skill 是错配：它们不是"流程"，而是<strong>长期事实/偏好</strong>，应该写入记忆系统（Memory），让它在每次对话中生效。错配的代价：Skill 列表膨胀、触发判断变慢、还可能与真正的任务型 Skill 抢注意力。另一个反例："帮我连上公司 Jira 查任务"需要的不是知识而是<strong>外部访问能力</strong>，应该用 MCP 连接器/插件，而不是把操作说明写成 Skill（写了也连不上）。</p>
+
+<h2><span class="num">5</span>概念辨析（Concept Discrimination）</h2>
+
+<h3>易混淆概念对照表</h3>
+<table>
+  <tr><th>概念</th><th>本质</th><th>典型场景</th><th>一句话区别</th></tr>
+  <tr><td><strong>Skill（技能）</strong></td><td>知识 + 流程的指令包</td><td>"按这套规范做这类任务"</td><td>教会 AI"怎么做事"</td></tr>
+  <tr><td><strong>Prompt 模板</strong></td><td>单条可复用的指令文本</td><td>临时套用一句话</td><td>Skill 是带触发机制和完整流程的"模板全家桶"</td></tr>
+  <tr><td><strong>Memory（记忆）</strong></td><td>跨会话的事实与偏好</td><td>"记住我喜欢简洁风格"</td><td>存"是什么"，不存"怎么做"</td></tr>
+  <tr><td><strong>MCP / 插件（连接器）</strong></td><td>外部系统的访问能力</td><td>"连上数据库/邮件/日历"</td><td>给 AI 一双手；Skill 是给 AI 一套章法</td></tr>
+  <tr><td><strong>Agent（智能体）</strong></td><td>自主规划执行的程序</td><td>目标开放的多步任务</td><td>Agent 是"人"，Skill 是人手里的"作业手册"</td></tr>
+</table>
+
+<h3>常见误解</h3>
+<div class="card warn">
+  <h3>误解 ① "Skill 是代码插件，需要编程实现"</h3>
+  <p>❌ 绝大多数 Skill 是<strong>纯文本指令文件</strong>（Markdown + YAML 头），不需要写代码。它靠"被加载进上下文"生效，而不是靠执行程序。<em>错的人把 Skill 与 MCP 插件混为一谈。</em></p>
+  <h3>误解 ② "Skill 装得越多，AI 越强"</h3>
+  <p>❌ 每个 Skill 的 description 都参与触发判断，装得过多会导致：触发变慢、匹配不准、多个 Skill 内容互相冲突。Skill 贵精不贵多，<strong>常用的、流程明确的任务才值得沉淀</strong>。</p>
+  <h3>误解 ③ "写了 Skill，模型就永久学会了"</h3>
+  <p>❌ Skill 不改变模型参数，本质上仍是"每次按需注入的指令"。删掉 Skill 文件，对应能力就消失——它更像"外挂手册"，不是"内化本领"。</p>
+</div>
+
+<h2><span class="num">6</span>自测题（Self-Test）</h2>
+
+<h3>概念辨析题</h3>
+<ol>
+  <li>（判断）Skill 安装后，模型参数发生变化，因此获得了新能力。</li>
+  <li>（单选）"以后所有报告都用中文、结尾带免责声明"这类<strong>长期偏好</strong>，最合适的沉淀方式是：<br>A. 做成 Skill　B. 写入记忆（Memory）　C. 做成 MCP 连接器　D. 每次手动输入</li>
+  <li>（单选）Skill 被触发后，其内容实际去往了哪里？<br>A. 模型参数　B. 本地数据库　C. 本次对话的上下文　D. 训练集</li>
+  <li>（多选）一个合格的 SKILL.md 通常包含：<br>A. YAML 元数据（name/description）　B. 触发场景　C. 工作流程与输出模板　D. 模型权重文件</li>
+  <li>（判断）同时安装 80 个 Skill 会让 AI 明显变强。</li>
+</ol>
+
+<h3>应用题</h3>
+<ol start="6">
+  <li>你的团队每周都要"从 Git 提交记录生成一份周报，按固定栏目分类、中文、200 字以内"。目前每个人都是手动让 AI 生成，质量参差。请回答：该不该做成 Skill？如果做，列出这个 SKILL.md 的元数据和主要章节标题；如果你认为不该做，说明理由和更优方案。</li>
+</ol>
+
+<details class="answer">
+<summary>点击查看答案与解析</summary>
+<ol>
+  <li><strong>错。</strong>Skill 不触碰模型参数，只是把指令注入上下文。删掉即失效——它是"外挂手册"而非"内化本领"。</li>
+  <li><strong>B。</strong>长期偏好属于"事实/规则"而非"任务流程"，写入记忆即可全局生效；做成 Skill 属于错配。<em>错选 A 的人没分清'是什么'和'怎么做'。</em></li>
+  <li><strong>C。</strong>Skill 的生效机制就是上下文注入——这也解释了为什么 Skill 要控制篇幅（占用上下文窗口）。</li>
+  <li><strong>A、B、C。</strong>元数据供触发判断，流程与模板约束执行；D 与 Skill 无关。</li>
+  <li><strong>错。</strong>Skill 数量膨胀会拖慢触发判断、降低匹配精度、增加内容冲突的风险。贵精不贵多。</li>
+  <li><strong>参考答案：</strong>应该做成 Skill。判断依据三条都满足：任务<strong>高频重复</strong>（每周一次）、<strong>结构固定</strong>（栏目固定、字数限制、语言要求明确）、<strong>质量有明确规范</strong>（可以写成准则）。SKILL.md 设计：<br>
+  元数据——<code>name: git 周报生成器</code>；<code>description: 从本周 Git 提交记录生成固定栏目的中文周报，200 字以内，适用于"生成周报/汇总本周提交"等请求</code>。<br>
+  主要章节——① 触发场景；② 工作流程（读取 git log → 按类型归类提交 → 生成周报 → 字数自查）；③ 输出模板（固定栏目：本周概览 / 主要完成 / 问题与风险 / 下周计划）；④ 质量准则（中文、≤200 字、不编造未发生的提交、技术术语保留英文）。<br>
+  补充：若"读取 Git 提交"需要外部仓库访问权限，还要配合 Git 工具/MCP——再次说明 Skill（章法）与连接器（双手）常常配合使用。</li>
+</ol>
+</details>
+
+<h2><span class="num">7</span>参考来源（References）</h2>
+<ul class="refs">
+  <li>Anthropic, <em>Agent Skills 文档与工程指南</em>（anthropic.com / docs.claude.com，2024-2025）—— SKILL.md 结构、渐进式加载机制的官方定义。</li>
+  <li>WorkBuddy 官方文档，<em>Skill 机制</em>（workbuddy.cn）—— 用户级（~/.workbuddy/skills/）与项目级（&lt;workspace&gt;/.workbuddy/skills/）Skill 目录说明。</li>
+  <li>本仓库 <code>.workbuddy/skills/概念学习资料生成器/SKILL.md</code> —— 一个可对照阅读的真实 Skill 实例。</li>
+</ul>
+
+<footer>概念学习资料生成器 · 生成于 2026-09-06 · 概念：Skill（技能）</footer>
+</div>
+</body>
+</html>
